@@ -1,12 +1,12 @@
 package com.memeasaur.statuseffecthudFabric.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.Hud;
+import net.minecraft.client.gui.GuiGraphics;
+
 import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectUtil;
 import java.util.IdentityHashMap;
@@ -15,7 +15,7 @@ import java.util.Map;
 final class StatusHud {
     private static final Map<MobEffectInstance, Integer> maximumDurations = new IdentityHashMap<>();
     private static Object player;
-    private static final Identifier BACKGROUND = Identifier.withDefaultNamespace("container/inventory/effect_background");
+    private static final ResourceLocation BACKGROUND = ResourceLocation.withDefaultNamespace("container/inventory/effect_background");
 
     // Track while menus are open too, and discard expired effects and old worlds.
     static void tick(Minecraft mc) {
@@ -30,12 +30,12 @@ final class StatusHud {
         return infinite || maximum <= 400 || duration / 20 > threshold || duration % 20 < 10;
     }
 
-    static void render(GuiGraphicsExtractor graphics) {
+    static void render(GuiGraphics graphics) {
         Minecraft mc = Minecraft.getInstance();
         HudConfig c = StatuseffecthudFabricClient.config;
-        if (!c.enabled || mc.player == null || mc.level == null || mc.gui.hud.isHidden()
+        if (!c.enabled || mc.player == null || mc.level == null || mc.options.hideGui
                 || mc.getDebugOverlay().showDebugScreen()
-                || (mc.gui.screen() != null && !(mc.gui.screen() instanceof ChatScreen && c.showInChat))) return;
+                || (mc.screen != null && !(mc.screen instanceof ChatScreen && c.showInChat))) return;
         var effects = mc.player.getActiveEffects().stream().filter(MobEffectInstance::showIcon).sorted().toList();
         int spacing = c.enableBackground ? 33 : c.enableEffectName ? 20 : 18;
         if (effects.size() > 5 && c.enableBackground) spacing = Math.max(1, 132 / (effects.size() - 1));
@@ -57,13 +57,13 @@ final class StatusHud {
             int iconX = right ? x + width - pad - 18 : x + pad;
             int iconY = y + (c.enableBackground ? 7 : 0);
             int textY = y + pad;
-            if (c.enableBackground) graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y, width, 32);
+            if (c.enableBackground) graphics.blitSprite(RenderType::guiTextured, BACKGROUND, x, y, width, 32);
             boolean visible = blinkVisible(effect.getDuration(), maximumDurations.getOrDefault(effect, effect.getDuration()), effect.isInfiniteDuration(), c.durationBlinkSeconds);
             if (!c.enableIconBlink || visible)
-                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Hud.getMobEffectSprite(effect.getEffect()), iconX, iconY, 18, 18);
+                graphics.blitSprite(RenderType::guiTextured, mc.getMobEffectTextures().get(effect.getEffect()), iconX, iconY, 18, 18);
             int textX = right ? iconX - 4 - mc.font.width(name) : iconX + 22;
-            graphics.text(mc.font, "\u00a7" + c.effectNameColor + name, textX, textY, 0xffffffff, true);
-            if (visible) graphics.text(mc.font, "\u00a7" + c.durationColor + duration,
+            graphics.drawString(mc.font, "\u00a7" + c.effectNameColor + name, textX, textY, 0xffffffff, true);
+            if (visible) graphics.drawString(mc.font, "\u00a7" + c.durationColor + duration,
                     right ? iconX - 4 - mc.font.width(duration) : iconX + 22, textY + (c.enableEffectName ? 10 : 5), 0xffffffff, true);
             y += spacing;
         }
