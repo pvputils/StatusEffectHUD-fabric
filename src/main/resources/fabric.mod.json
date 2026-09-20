@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "statuseffecthud-fabric",
+  "version": "${version}",
+  "name": "StatusEffectHUD",
+  "description": "Client-side Fabric port of bspkrs StatusEffectHUD, showing effect icons, names, and duration timers.",
+  "authors": [
+    "bspkrs (original mod)",
+    "memeasaur (Fabric port)"
+  ],
+  "contact": {},
+  "license": "CC-BY-NC-SA-3.0",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": [
+      "com.memeasaur.statuseffecthudFabric.client.StatuseffecthudFabricDataGenerator"
+    ],
+    "client": [
+      "com.memeasaur.statuseffecthudFabric.client.StatuseffecthudFabricClient"
+    ],
+    "main": [
+      "com.memeasaur.statuseffecthudFabric.StatuseffecthudFabric"
+    ]
+  },
+  "mixins": [
+    "statuseffecthud-fabric.mixins.json",
+    {
+      "config": "statuseffecthud-fabric.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}",
+    "java": ">=25"
+  }
+}
