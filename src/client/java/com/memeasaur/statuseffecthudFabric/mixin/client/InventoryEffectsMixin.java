@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EffectsInInventory.class)
 public abstract class InventoryEffectsMixin {
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private void statuseffecthud$hideEffects(GuiGraphics graphics, int mouseX, int mouseY, CallbackInfo ci) {
+    private void statuseffecthud$hideEffects(GuiGraphics guiGraphics, int i, int j, float f, CallbackInfo ci) {
         if (StatuseffecthudFabricClient.hideInventoryEffects()) ci.cancel();
     }
 }
