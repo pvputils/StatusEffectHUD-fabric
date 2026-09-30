@@ -1,12 +1,12 @@
 package com.memeasaur.statuseffecthudFabric.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.Hud;
+import net.minecraft.client.gui.GuiGraphics;
+
 import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectUtil;
 import java.util.IdentityHashMap;
@@ -15,7 +15,7 @@ import java.util.Map;
 final class StatusHud {
     private static final Map<MobEffectInstance, Integer> maximumDurations = new IdentityHashMap<>();
     private static Object player;
-    private static final Identifier BACKGROUND = Identifier.withDefaultNamespace("container/inventory/effect_background");
+    private static final ResourceLocation BACKGROUND = ResourceLocation.withDefaultNamespace("container/inventory/effect_background");
 
     // Track while menus are open too, and discard expired effects and old worlds.
     static void tick(Minecraft mc) {
@@ -31,21 +31,21 @@ final class StatusHud {
     }
 
     // codex start
-    private static void drawScaledText(GuiGraphicsExtractor graphics, Minecraft minecraft, String text, int x, int y, float scale) {
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(x, y);
-        graphics.pose().scale(scale);
-        graphics.text(minecraft.font, text, 0, 0, 0xffffffff, true);
-        graphics.pose().popMatrix();
+    private static void drawScaledText(GuiGraphics graphics, Minecraft minecraft, String text, int x, int y, float scale) {
+        graphics.pose().pushPose();
+        graphics.pose().translate(x, y, 0.0f);
+        graphics.pose().scale(scale, scale, 1.0f);
+        graphics.drawString(minecraft.font, text, 0, 0, 0xffffffff, true);
+        graphics.pose().popPose();
     }
     //codex end
 
-    static void render(GuiGraphicsExtractor graphics) {
+    static void render(GuiGraphics graphics) {
         Minecraft mc = Minecraft.getInstance();
         HudConfig c = StatuseffecthudFabricClient.config;
-        if (!c.enabled || mc.player == null || mc.level == null || mc.gui.hud.isHidden()
+        if (!c.enabled || mc.player == null || mc.level == null || mc.options.hideGui
                 || mc.getDebugOverlay().showDebugScreen()
-                || (mc.gui.screen() != null && !(mc.gui.screen() instanceof ChatScreen && c.showInChat))) return;
+                || (mc.screen != null && !(mc.screen instanceof ChatScreen && c.showInChat))) return;
         var effects = mc.player.getActiveEffects().stream().filter(MobEffectInstance::showIcon).sorted().toList();
         float textScale = c.textScalePercent / 100.0f; //codex (int spacing = c.enableBackground ? 33 : c.enableEffectName ? 20 : 18;)
         int spacing = c.enableBackground ? 33 : c.enableEffectName ? Math.max(20, (int) Math.ceil(20 * textScale)) : Math.max(18, (int) Math.ceil(18 * textScale)); //codex (int spacing = c.enableBackground ? 33 : c.enableEffectName ? 20 : 18;)
@@ -68,18 +68,18 @@ final class StatusHud {
             int iconX = right ? x + width - pad - 18 : x + pad;
             int iconY = y + (c.enableBackground ? 7 : 0);
             int textY = y + pad;
-            if (c.enableBackground) graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y, width, 32);
+            if (c.enableBackground) graphics.blitSprite(RenderType::guiTextured, BACKGROUND, x, y, width, 32);
             boolean visible = blinkVisible(effect.getDuration(), maximumDurations.getOrDefault(effect, effect.getDuration()), effect.isInfiniteDuration(), c.durationBlinkSeconds);
             if (!c.enableIconBlink || visible)
-                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Hud.getMobEffectSprite(effect.getEffect()), iconX, iconY, 18, 18);
+                graphics.blitSprite(RenderType::guiTextured, mc.getMobEffectTextures().get(effect.getEffect()), iconX, iconY, 18, 18);
             int textX = right ? iconX - 4 - (int) Math.ceil(mc.font.width(name) * textScale) : iconX + 22; //codex (int textX = right ? iconX - 4 - mc.font.width(name) : iconX + 22;)
             // codex start
-            drawScaledText(graphics, mc, "\u00a7" + c.effectNameColor + name, textX, textY, textScale); //codex (graphics.text(mc.font, "\u00a7" + c.effectNameColor + name, textX, textY, 0xffffffff, true);)
+            drawScaledText(graphics, mc, "\u00a7" + c.effectNameColor + name, textX, textY, textScale); //codex (graphics.drawString(mc.font, "\u00a7" + c.effectNameColor + name, textX, textY, 0xffffffff, true);)
             //codex end
             // codex start
             if (visible) drawScaledText(graphics, mc, "\u00a7" + c.durationColor + duration,
                     right ? iconX - 4 - (int) Math.ceil(mc.font.width(duration) * textScale) : iconX + 22,
-                    textY + (int) Math.ceil((c.enableEffectName ? 10 : 5) * textScale), textScale); //codex (if (visible) graphics.text(mc.font, "\u00a7" + c.durationColor + duration, right ? iconX - 4 - mc.font.width(duration) : iconX + 22, textY + (c.enableEffectName ? 10 : 5), 0xffffffff, true);)
+                    textY + (int) Math.ceil((c.enableEffectName ? 10 : 5) * textScale), textScale); //codex (if (visible) graphics.drawString(mc.font, "\u00a7" + c.durationColor + duration, right ? iconX - 4 - mc.font.width(duration) : iconX + 22, textY + (c.enableEffectName ? 10 : 5), 0xffffffff, true);)
             //codex end
             y += spacing;
         }
