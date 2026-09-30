@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "com.memeasaur.statuseffecthudFabric.mixin.client",
   "compatibilityLevel": "JAVA_21",
-  "client": ["InventoryEffectsMixin"
+  "client": ["InventoryEffectsMixin", "VanillaEffectBadgesMixinTodoAi"
   ],
   "injectors": {
     "defaultRequire": 1

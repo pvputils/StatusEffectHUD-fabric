@@ -5,6 +5,14 @@ public final class HudConfigTest {
         HudConfig config = new HudConfig();
         config.validate();
         check(config.enabled && config.alignMode.equals("middleright") && config.showInChat && config.disableInventoryEffectList, "Original defaults");
+        // codex start
+        check(config.textScalePercent == 100 && config.disableVanillaEffectBadges, "New defaults");
+        config.textScalePercent = 150;
+        check(config.copy().textScalePercent == 150, "Text scale JSON round trip");
+        for (int invalidScale : new int[]{49, 201}) {
+            HudConfig badScale = new HudConfig(); badScale.textScalePercent = invalidScale; rejects(badScale);
+        }
+        //codex end
         config.xOffset = -50;
         config.durationBlinkSeconds = -1;
         HudConfig draft = config.copy();

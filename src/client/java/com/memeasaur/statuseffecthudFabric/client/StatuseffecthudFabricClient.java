@@ -15,6 +15,9 @@ public class StatuseffecthudFabricClient implements ClientModInitializer {
     private static boolean openConfig;
     public static boolean isEnabled() { return config.enabled; }
     public static boolean hideInventoryEffects() { return config.enabled && config.disableInventoryEffectList; }
+    // codex start
+    public static boolean hideVanillaEffectBadges() { return config.enabled && config.disableVanillaEffectBadges; }
+    //codex end
     private static LiteralArgumentBuilder<FabricClientCommandSource> literal(String name) {
         return LiteralArgumentBuilder.literal(name);
     }
