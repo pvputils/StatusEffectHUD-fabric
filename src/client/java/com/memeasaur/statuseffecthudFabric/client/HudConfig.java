@@ -25,12 +25,20 @@ public class HudConfig {
     public boolean applyXOffsetToCenter = false;
     public boolean applyYOffsetToMiddle = false;
     public boolean showInChat = true;
+    // codex start
+    public int textScalePercent = 100;
+    public boolean disableVanillaEffectBadges = true;
+    //codex end
 
     void validate() {
         if (!Arrays.asList("topleft", "topcenter", "topright", "middleleft", "middlecenter", "middleright", "bottomleft", "bottomcenter", "bottomright").contains(alignMode))
             throw new IllegalArgumentException("Invalid alignment; use e.g. middleright or bottomleft");
         if (durationBlinkSeconds < -1 || durationBlinkSeconds > 60)
             throw new IllegalArgumentException("Blink seconds must be between -1 and 60");
+        // codex start
+        if (textScalePercent < 50 || textScalePercent > 200)
+            throw new IllegalArgumentException("Text scale must be between 50 and 200 percent");
+        //codex end
         for (String color : new String[]{effectNameColor, durationColor})
             if (color == null || !color.matches("[0-9a-fA-F]")) throw new IllegalArgumentException("Colors must be a single code: 0-9 or a-f");
     }
