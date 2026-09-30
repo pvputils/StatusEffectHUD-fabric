@@ -16,7 +16,7 @@ public class StatuseffecthudFabricClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
         try { config = HudConfig.load(); }
         catch (Exception e) { LoggerFactory.getLogger("statuseffecthud").error("Cannot load statuseffecthud.json; using defaults without overwriting the file", e); }
-        HudElementRegistry.replaceElement(net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.MOB_EFFECTS, original -> (graphics, delta) -> { if (!config.enabled) original.extractRenderState(graphics, delta); });
+        HudElementRegistry.replaceElement(net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.MOB_EFFECTS, original -> (graphics, delta) -> { if (!config.enabled || !config.disableVanillaEffectBadges) original.extractRenderState(graphics, delta); }); //codex (HudElementRegistry.replaceElement(net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.MOB_EFFECTS, original -> (graphics, delta) -> { if (!config.enabled) original.extractRenderState(graphics, delta); });)
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("statuseffecthud-fabric", "effects"), (graphics, delta) -> StatusHud.render(graphics));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             StatusHud.tick(client);
